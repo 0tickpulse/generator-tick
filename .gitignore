@@ -1,0 +1,8 @@
+# Node modules
+node_modules/
+# Compiled TypeScript files
+out/
+# Generated documentation
+docs/
+# VSCode settings
+.vscode/
