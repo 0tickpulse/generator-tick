@@ -14,6 +14,7 @@ type GeneratorProjectData = {
     author: string;
     repo: string;
     license: string;
+    webpack: boolean;
 };
 
 export default class extends Generator {
@@ -28,7 +29,7 @@ export default class extends Generator {
                 type: "input",
                 name: "name",
                 message: "Your project name",
-                default: this.appname,
+                default: this.appname.replace(/\s/g, "-"),
             },
             {
                 type: "input",
@@ -66,6 +67,16 @@ export default class extends Generator {
             },
         ]);
         data["license"] = license;
+
+        const { webpack } = await this.prompt([
+            {
+                type: "confirm",
+                name: "webpack",
+                message: "Do you want to use webpack?",
+                default: false,
+            },
+        ]);
+
         this.log(data);
         const { confirm } = await this.prompt([
             {
@@ -92,8 +103,7 @@ export default class extends Generator {
             type: "git",
             url: `https://github.com/${newData["author"]}/${newData["repo"]}.git`,
         };
-
-        await Promise.all([
+        const tasks = [
             writeFile(join(this.destinationPath(), "package.json"), JSON.stringify(packagejson, null, 4)),
             writeFile(join(this.destinationPath(), "tsconfig.json"), JSON.stringify(tsconfig, null, 4)),
             writeFile(join(this.destinationPath(), ".eslintrc.json"), JSON.stringify(eslintrcjson, null, 4)),
@@ -107,15 +117,31 @@ ${newData["description"]}`,
             writeFile(join(this.destinationPath(), ".gitignore"), gitignore.map((i) => i.generate()).join("\n")),
             mkdir(join(this.destinationPath(), "src")),
             mkdir(join(this.destinationPath(), "out")),
-        ]);
+        ];
+
+        // manage webpack
+        if (newData["webpack"]) {
+            // add webpack, webpack-cli, ts-loader
+            libraries.devDependencies.push("webpack", "webpack-cli", "ts-loader");
+            // add webpack.config.js
+            tasks.push(
+                writeFile(
+                    join(this.destinationPath(), "webpack.config.js"),
+                    await readFile(join(__dirname, "templates", "webpack.config.js"), "utf-8"),
+                ),
+            );
+        }
+
+
+        await Promise.all(tasks);
         await writeFile(join(this.destinationPath(), "src", "index.ts"), "");
 
         this.log("Installing dependencies...");
         // run pnpm install
         await Promise.all(
             [
-                libraries.dependencies.map((i) => this.spawnCommand("pnpm", ["add", i])),
-                libraries.devDependencies.map((i) => this.spawnCommand("pnpm", ["add", i, "--save-dev"])),
+                this.spawnCommand("pnpm", ["add", ...libraries.dependencies]),
+                this.spawnCommand("pnpm", ["add", "--save-dev", ...libraries.devDependencies]),
                 this.spawnCommand("git", ["init"]),
             ].flat(),
         );
