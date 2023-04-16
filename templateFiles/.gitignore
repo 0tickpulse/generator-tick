@@ -1,6 +1,11 @@
 # Node modules
 node_modules/
+
 # Compiled TypeScript files
-out/
+dist/
+
 # Generated documentation
 docs/
+
+# Package lock file
+package-lock.yaml

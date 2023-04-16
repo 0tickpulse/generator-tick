@@ -1,3 +1,4 @@
+/** @type {import("ts-jest").JestConfigWithTsJest} */
 export default {
     transform: {
         "\\.[jt]sx?$": [

@@ -1,11 +1,7 @@
 import Generator, { GeneratorOptions } from "yeoman-generator";
 import { join } from "path";
 import { mkdir, readFile, writeFile } from "fs/promises";
-import eslintrcjson from "./templates/.eslintrc.js";
 import packagejson from "./templates/package.js";
-import tsconfig from "./templates/tsconfig.js";
-import gitignore from "./templates/gitignore.js";
-import jestconfig from "./templates/jestconfig.js";
 import libraries from "./libraries.js";
 
 type GeneratorProjectData = {
@@ -103,20 +99,19 @@ export default class extends Generator {
             type: "git",
             url: `https://github.com/${newData["author"]}/${newData["repo"]}.git`,
         };
+
         const tasks = [
             writeFile(join(this.destinationPath(), "package.json"), JSON.stringify(packagejson, null, 4)),
-            writeFile(join(this.destinationPath(), "tsconfig.json"), JSON.stringify(tsconfig, null, 4)),
-            writeFile(join(this.destinationPath(), ".eslintrc.json"), JSON.stringify(eslintrcjson, null, 4)),
-            writeFile(join(this.destinationPath(), "jest.config.json"), JSON.stringify(jestconfig, null, 4)),
             writeFile(
                 join(this.destinationPath(), "README.md"),
                 `# ${newData["name"]}
 
 ${newData["description"]}`,
             ),
-            writeFile(join(this.destinationPath(), ".gitignore"), gitignore.map((i) => i.generate()).join("\n")),
             mkdir(join(this.destinationPath(), "src")),
             mkdir(join(this.destinationPath(), "dist")),
+
+            this.copyDestination(join(__dirname, "..", "templateFiles"), this.destinationPath()),
         ];
 
         // manage webpack
@@ -131,7 +126,6 @@ ${newData["description"]}`,
                 ),
             );
         }
-
 
         await Promise.all(tasks);
         await writeFile(join(this.destinationPath(), "src", "index.ts"), "");
