@@ -123,10 +123,10 @@ ${newData["description"]}`),
             this.log("Installing dependencies...");
             // run pnpm install
             yield Promise.all([
-                this.spawnCommand("pnpm", ["add", ...libraries.dependencies]),
-                this.spawnCommand("pnpm", ["add", "--save-dev", ...libraries.devDependencies]),
+                libraries.dependencies.length > 0 && this.spawnCommand("pnpm", ["add", ...libraries.dependencies]),
+                libraries.devDependencies.length > 0 && this.spawnCommand("pnpm", ["add", "--save-dev", ...libraries.devDependencies]),
                 this.spawnCommand("git", ["init"]),
-            ].flat());
+            ].filter(Boolean));
             this.log("Done!");
             process.exit(0);
         });
