@@ -102,14 +102,14 @@ export default class extends Generator {
 ${newData["description"]}`),
                 mkdir(join(this.destinationPath(), "src")),
                 mkdir(join(this.destinationPath(), "dist")),
-                this.copyDestination(join(__dirname, "..", "templateFiles"), this.destinationPath()),
+                this.copyDestination(join(this.destinationPath(), "..", "templateFiles"), this.destinationPath()),
             ];
             // manage webpack
             if (newData["webpack"]) {
                 // add webpack, webpack-cli, ts-loader
                 libraries.devDependencies.push("webpack", "webpack-cli", "ts-loader");
                 // add webpack.config.js
-                tasks.push(writeFile(join(this.destinationPath(), "webpack.config.js"), yield readFile(join(__dirname, "templates", "webpack.config.js"), "utf-8")));
+                tasks.push(writeFile(join(this.destinationPath(), "webpack.config.js"), yield readFile(join(this.destinationPath(), "..", "conditionalTemplateFiles", "webpack.config.js"), "utf-8")));
             }
             yield Promise.all(tasks);
             yield writeFile(join(this.destinationPath(), "src", "index.ts"), "");
