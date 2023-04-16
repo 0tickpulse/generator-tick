@@ -72,6 +72,7 @@ export default class extends Generator {
                 default: false,
             },
         ]);
+        data["webpack"] = webpack;
 
         this.log(data);
         const { confirm } = await this.prompt([
@@ -101,17 +102,17 @@ export default class extends Generator {
         };
 
         const tasks = [
-            writeFile(join(this.destinationPath(), "package.json"), JSON.stringify(packagejson, null, 4)),
+            writeFile(this.destinationPath("package.json"), JSON.stringify(packagejson, null, 4)),
             writeFile(
-                join(this.destinationPath(), "README.md"),
+                this.destinationPath("README.md"),
                 `# ${newData["name"]}
 
 ${newData["description"]}`,
             ),
-            mkdir(join(this.destinationPath(), "src")),
-            mkdir(join(this.destinationPath(), "dist")),
+            mkdir(this.destinationPath("src")),
+            mkdir(this.destinationPath("dist")),
 
-            this.copyDestination(join(this.sourceRoot(), "..", "templateFiles"), this.destinationPath()),
+            this.copyDestination(this.templatePath("..", "templateFiles"), this.destinationPath()),
         ];
 
         // manage webpack
@@ -121,14 +122,14 @@ ${newData["description"]}`,
             // add webpack.config.js
             tasks.push(
                 writeFile(
-                    join(this.destinationPath(), "webpack.config.js"),
-                    await readFile(join(this.sourceRoot(), "..", "conditionalTemplateFiles", "webpack.config.js"), "utf-8"),
+                    this.destinationPath("webpack.config.js"),
+                    await readFile(this.templatePath("..", "conditionalTemplateFiles", "webpack.config.js"), "utf-8"),
                 ),
             );
         }
 
         await Promise.all(tasks);
-        await writeFile(join(this.destinationPath(), "src", "index.ts"), "");
+        await writeFile(this.destinationPath("src", "index.ts"), "");
 
         this.log("Installing dependencies...");
         // run pnpm install

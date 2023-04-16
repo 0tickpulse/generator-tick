@@ -8,7 +8,6 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
     });
 };
 import Generator from "yeoman-generator";
-import { join } from "path";
 import { mkdir, readFile, writeFile } from "fs/promises";
 import packagejson from "./templates/package.js";
 import libraries from "./libraries.js";
@@ -72,6 +71,7 @@ export default class extends Generator {
                     default: false,
                 },
             ]);
+            data["webpack"] = webpack;
             this.log(data);
             const { confirm } = yield this.prompt([
                 {
@@ -96,23 +96,23 @@ export default class extends Generator {
                 url: `https://github.com/${newData["author"]}/${newData["repo"]}.git`,
             };
             const tasks = [
-                writeFile(join(this.destinationPath(), "package.json"), JSON.stringify(packagejson, null, 4)),
-                writeFile(join(this.destinationPath(), "README.md"), `# ${newData["name"]}
+                writeFile(this.destinationPath("package.json"), JSON.stringify(packagejson, null, 4)),
+                writeFile(this.destinationPath("README.md"), `# ${newData["name"]}
 
 ${newData["description"]}`),
-                mkdir(join(this.destinationPath(), "src")),
-                mkdir(join(this.destinationPath(), "dist")),
-                this.copyDestination(join(this.sourceRoot(), "..", "templateFiles"), this.destinationPath()),
+                mkdir(this.destinationPath("src")),
+                mkdir(this.destinationPath("dist")),
+                this.copyDestination(this.templatePath("..", "templateFiles"), this.destinationPath()),
             ];
             // manage webpack
             if (newData["webpack"]) {
                 // add webpack, webpack-cli, ts-loader
                 libraries.devDependencies.push("webpack", "webpack-cli", "ts-loader");
                 // add webpack.config.js
-                tasks.push(writeFile(join(this.destinationPath(), "webpack.config.js"), yield readFile(join(this.sourceRoot(), "..", "conditionalTemplateFiles", "webpack.config.js"), "utf-8")));
+                tasks.push(writeFile(this.destinationPath("webpack.config.js"), yield readFile(this.templatePath("..", "conditionalTemplateFiles", "webpack.config.js"), "utf-8")));
             }
             yield Promise.all(tasks);
-            yield writeFile(join(this.destinationPath(), "src", "index.ts"), "");
+            yield writeFile(this.destinationPath("src", "index.ts"), "");
             this.log("Installing dependencies...");
             // run pnpm install
             yield Promise.all([
