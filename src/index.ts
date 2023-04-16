@@ -116,7 +116,7 @@ ${newData["description"]}`,
             ),
             writeFile(join(this.destinationPath(), ".gitignore"), gitignore.map((i) => i.generate()).join("\n")),
             mkdir(join(this.destinationPath(), "src")),
-            mkdir(join(this.destinationPath(), "out")),
+            mkdir(join(this.destinationPath(), "dist")),
         ];
 
         // manage webpack

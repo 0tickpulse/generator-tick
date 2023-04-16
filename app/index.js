@@ -9,7 +9,7 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
 };
 import Generator from "yeoman-generator";
 import { join } from "path";
-import { mkdir, writeFile } from "fs/promises";
+import { mkdir, readFile, writeFile } from "fs/promises";
 import eslintrcjson from "./templates/.eslintrc.js";
 import packagejson from "./templates/package.js";
 import tsconfig from "./templates/tsconfig.js";
@@ -30,7 +30,7 @@ export default class extends Generator {
                     type: "input",
                     name: "name",
                     message: "Your project name",
-                    default: this.appname,
+                    default: this.appname.replace(/\s/g, "-"),
                 },
                 {
                     type: "input",
@@ -68,6 +68,14 @@ export default class extends Generator {
                 },
             ]);
             data["license"] = license;
+            const { webpack } = yield this.prompt([
+                {
+                    type: "confirm",
+                    name: "webpack",
+                    message: "Do you want to use webpack?",
+                    default: false,
+                },
+            ]);
             this.log(data);
             const { confirm } = yield this.prompt([
                 {
@@ -91,7 +99,7 @@ export default class extends Generator {
                 type: "git",
                 url: `https://github.com/${newData["author"]}/${newData["repo"]}.git`,
             };
-            yield Promise.all([
+            const tasks = [
                 writeFile(join(this.destinationPath(), "package.json"), JSON.stringify(packagejson, null, 4)),
                 writeFile(join(this.destinationPath(), "tsconfig.json"), JSON.stringify(tsconfig, null, 4)),
                 writeFile(join(this.destinationPath(), ".eslintrc.json"), JSON.stringify(eslintrcjson, null, 4)),
@@ -101,14 +109,22 @@ export default class extends Generator {
 ${newData["description"]}`),
                 writeFile(join(this.destinationPath(), ".gitignore"), gitignore.map((i) => i.generate()).join("\n")),
                 mkdir(join(this.destinationPath(), "src")),
-                mkdir(join(this.destinationPath(), "out")),
-            ]);
+                mkdir(join(this.destinationPath(), "dist")),
+            ];
+            // manage webpack
+            if (newData["webpack"]) {
+                // add webpack, webpack-cli, ts-loader
+                libraries.devDependencies.push("webpack", "webpack-cli", "ts-loader");
+                // add webpack.config.js
+                tasks.push(writeFile(join(this.destinationPath(), "webpack.config.js"), yield readFile(join(__dirname, "templates", "webpack.config.js"), "utf-8")));
+            }
+            yield Promise.all(tasks);
             yield writeFile(join(this.destinationPath(), "src", "index.ts"), "");
             this.log("Installing dependencies...");
             // run pnpm install
             yield Promise.all([
-                libraries.dependencies.map((i) => this.spawnCommand("pnpm", ["add", i])),
-                libraries.devDependencies.map((i) => this.spawnCommand("pnpm", ["add", i, "--save-dev"])),
+                this.spawnCommand("pnpm", ["add", ...libraries.dependencies]),
+                this.spawnCommand("pnpm", ["add", "--save-dev", ...libraries.devDependencies]),
                 this.spawnCommand("git", ["init"]),
             ].flat());
             this.log("Done!");

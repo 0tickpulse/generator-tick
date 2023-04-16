@@ -6,12 +6,12 @@ declare const _default: {
     main: string;
     scripts: {
         test: string;
+        testCoverage: string;
         build: string;
         watch: string;
         clean: string;
         cleanWindows: string;
         typedoc: string;
-        prettier: string;
     };
     author: string;
     license: string;

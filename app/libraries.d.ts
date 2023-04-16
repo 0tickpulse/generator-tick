@@ -1,5 +1,5 @@
 declare const _default: {
-    dependencies: string[];
+    dependencies: never[];
     devDependencies: string[];
 };
 export default _default;
