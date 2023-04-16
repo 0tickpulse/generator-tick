@@ -111,7 +111,7 @@ ${newData["description"]}`,
             mkdir(join(this.destinationPath(), "src")),
             mkdir(join(this.destinationPath(), "dist")),
 
-            this.copyDestination(join(this.destinationPath(), "..", "templateFiles"), this.destinationPath()),
+            this.copyDestination(join(this.sourceRoot(), "..", "templateFiles"), this.destinationPath()),
         ];
 
         // manage webpack
@@ -122,7 +122,7 @@ ${newData["description"]}`,
             tasks.push(
                 writeFile(
                     join(this.destinationPath(), "webpack.config.js"),
-                    await readFile(join(this.destinationPath(), "..", "conditionalTemplateFiles", "webpack.config.js"), "utf-8"),
+                    await readFile(join(this.sourceRoot(), "..", "conditionalTemplateFiles", "webpack.config.js"), "utf-8"),
                 ),
             );
         }
