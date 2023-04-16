@@ -16,7 +16,7 @@ function g(name: string, description: string): GitIgnoreSingleton {
 
 export default [
     g("node_modules/", "Node modules"),
-    g("out/", "Compiled TypeScript files"),
+    g("dist/", "Compiled TypeScript files"),
     g("docs/", "Generated documentation"),
     g(".vscode/", "VSCode settings"),
 ]
