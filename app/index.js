@@ -109,7 +109,7 @@ ${newData["description"]}`),
                 // add webpack, webpack-cli, ts-loader
                 libraries.devDependencies.push("webpack", "webpack-cli", "ts-loader");
                 // add webpack.config.js
-                tasks.push(writeFile(this.destinationPath("webpack.config.js"), yield readFile(this.templatePath("..", "conditionalTemplateFiles", "webpack.config.js"), "utf-8")));
+                tasks.push(writeFile(this.destinationPath("webpack.config.js"), yield readFile(this.templatePath("..", "..", "conditionalTemplateFiles", "webpack.config.js"), "utf-8")));
             }
             yield Promise.all(tasks);
             yield writeFile(this.destinationPath("src", "index.ts"), "");

@@ -123,7 +123,7 @@ ${newData["description"]}`,
             tasks.push(
                 writeFile(
                     this.destinationPath("webpack.config.js"),
-                    await readFile(this.templatePath("..", "conditionalTemplateFiles", "webpack.config.js"), "utf-8"),
+                    await readFile(this.templatePath("..", "..", "conditionalTemplateFiles", "webpack.config.js"), "utf-8"),
                 ),
             );
         }
