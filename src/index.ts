@@ -112,7 +112,7 @@ ${newData["description"]}`,
             mkdir(this.destinationPath("src")),
             mkdir(this.destinationPath("dist")),
 
-            this.copyDestination(this.templatePath("..", "templateFiles"), this.destinationPath()),
+            this.copyDestination(this.templatePath("..", "..", "templateFiles"), this.destinationPath()),
         ];
 
         // manage webpack
